@@ -65,31 +65,6 @@ function changePassword() {
     showLogin();
 }
 
-// --- AI Estimasi Jarak Jalan ---
-let langkah = 0;
-
-document.addEventListener("mousemove", () => langkah++);
-document.addEventListener("keydown", () => langkah++);
-
-function hitungKmJalan() {
-    // 200 gerakan = kira-kira 1 menit aktivitas ringan
-    let menitAktif = Math.floor(langkah / 200);
-
-    // 0.075 km = rata-rata jarak jalan per menit
-    let km = (menitAktif * 0.075).toFixed(2);
-
-    return km;
-}
-
-// --- AI Screen Time ---
-let startTime = Date.now();
-
-function hitungScreenTime() {
-    let detik = Math.floor((Date.now() - startTime) / 1000);
-    let menit = Math.floor(detik / 60);
-    return menit;
-}
-
 // --- AI Warning System ---
 function updateAIWarning(km, screen) {
     let msg = "";
@@ -100,26 +75,98 @@ function updateAIWarning(km, screen) {
     else if (screen > 180) {
         msg = "AI Analysis: Kamu sudah lebih dari 3 jam nonstop. Minum air dan lihat jauh sejenak!";
     }
-    else if (km < 0.5) {
-        msg = "AI Analysis: Aktivitas fisikmu sangat rendah hari ini. Coba jalan sebentar!";
-    }
-    else {
-        msg = "AI Analysis: Aktivitas harianmu cukup seimbang. Good job!";
-    }
-
     document.getElementById("warningText").innerText = msg;
 }
+// --- Penyimpanan kondisi tombol ---
+let kondisi = {
+    lelah: false,
+    sakit: false,
+    emosi: false
+};
 
-// --- Update Dashboard ---
-if (window.location.pathname.includes("dashboard.html")) {
+// Tombol toggle kondisi
+function toggleCond(kond) {
+    kondisi[kond] = !kondisi[kond];
 
-    setInterval(() => {
-        let km = hitungKmJalan();
-        let screen = hitungScreenTime();
+    // Ganti warna tombol
+    const btnId = {
+        lelah: "btnLelah",
+        sakit: "btnSakit",
+        emosi: "btnEmosi"
+    };
 
-        document.getElementById("kmJalan").innerText = km + " km";
-        document.getElementById("screenTime").innerText = screen + " menit";
-
-        updateAIWarning(km, screen);
-    }, 2000);
+    let btn = document.getElementById(btnId[kond]);
+    btn.classList.toggle("selected");
 }
+
+// --- Analisa Kesehatan ---
+function analisaKesehatan() {
+    let tb = parseFloat(document.getElementById("tb").value);
+    let bb = parseFloat(document.getElementById("bb").value);
+    let umur = parseFloat(document.getElementById("umur").value);
+
+    if (!tb || !bb || !umur) {
+        alert("Mohon isi semua data!");
+        return;
+    }
+
+    // Hitung BMI
+    let meter = tb / 100;
+    let bmi = (bb / (meter * meter)).toFixed(1);
+
+    document.getElementById("hasilBMI").innerText = "BMI: " + bmi;
+
+    // Penilaian dasar BMI
+    let ideal = "";
+    if (bmi < 18.5) ideal = "Kurus";
+    else if (bmi <= 24.9) ideal = "Ideal";
+    else if (bmi <= 29.9) ideal = "Berlebih";
+    else ideal = "Obesitas";
+
+    // Skor Kesehatan
+    let skor = 100;
+
+    // Tambah penalti berdasarkan BMI
+    if (ideal === "Kurus") skor -= 10;
+    if (ideal === "Berlebih") skor -= 15;
+    if (ideal === "Obesitas") skor -= 25;
+
+    // Tambah penalti berdasarkan kondisi tombol
+    if (kondisi.lelah) skor -= 15;
+    if (kondisi.sakit) skor -= 20;
+    if (kondisi.emosi) skor -= 10;
+
+    // Penalti berdasarkan umur (realistis)
+    if (umur < 12) skor -= 5;
+    else if (umur > 40) skor -= 10;
+
+    // Batas minimum skor
+    if (skor < 0) skor = 0;
+
+    document.getElementById("hasilSkor").innerText = "Skor Kesehatan: " + skor + "/100";
+
+    // AI Saran
+    let saran = "Kondisi kamu cukup stabil.";
+
+    if (skor >= 85) {
+        saran = "Kondisi kamu ideal! Tetap jaga pola makan dan aktivitas.";
+    }
+    else if (skor >= 65) {
+        saran = "Kondisi cukup baik. Disarankan olahraga ringan 2–3x seminggu.";
+    }
+    else if (skor >= 40) {
+        saran = "Beberapa hal perlu diperhatikan. Tingkatkan tidur cukup, minum air, dan kurangi stres.";
+    }
+    else if (skor < 40) {
+        saran = "AI melihat kondisi kamu kurang ideal. Disarankan konsultasi kesehatan, atur pola makan, dan istirahat cukup.";
+    }
+
+    // Tambahkan saran khusus berdasar kondisi user
+    if (kondisi.lelah) saran += " • Kamu sering cepat lelah, coba tambahkan makanan bergizi dan perbaiki pola tidur.";
+    if (kondisi.sakit) saran += " • Kamu mudah sakit, tingkatkan imun dengan buah, olahraga ringan, dan sinar matahari pagi.";
+    if (kondisi.emosi) saran += " • Kamu mudah berubah ekspresi, coba lakukan relaksasi atau manajemen stres.";
+
+    document.getElementById("aiSaran").innerText = saran;
+}
+
+
