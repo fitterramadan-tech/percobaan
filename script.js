@@ -28,7 +28,7 @@ function register() {
     }
 
     localStorage.setItem(user, pass);
-    alert("Akun berhasil dibuat!");
+    window.location.href = "dashboard.html";
     showLogin();
 }
 
@@ -39,7 +39,6 @@ function login() {
 
     if (localStorage.getItem(user) === pass) {
         window.location.href = "dashboard.html";
-
     } else {
         alert("Username atau password salah!");
     }
