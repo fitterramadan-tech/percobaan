@@ -2,27 +2,43 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard Aktivitas</title>
+    <title>Cek Kesehatan</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div class="dash">
-    <h2>Dashboard Aktivitas Harian</h2>
+    <h2>Cek Kesehatan Harian</h2>
 
     <div class="card">
-        <h3>Jarak Berjalan Hari Ini</h3>
-        <p id="kmJalan">Menghitung...</p>
+        <h3>Masukkan Data</h3>
+
+        <input type="number" id="tb" placeholder="Tinggi badan (cm)">
+        <input type="number" id="bb" placeholder="Berat badan (kg)">
+        <input type="number" id="umur" placeholder="Umur (tahun)">
     </div>
 
     <div class="card">
-        <h3>Waktu Pemakaian Digital</h3>
-        <p id="screenTime">Menghitung...</p>
+        <h3>Pilih Kondisi</h3>
+
+        <button onclick="toggleCond('lelah')" id="btnLelah">Cepat Lelah</button>
+        <button onclick="toggleCond('sakit')" id="btnSakit">Gampang Sakit</button>
+        <button onclick="toggleCond('emosi')" id="btnEmosi">Gampang Berubah Ekspresi</button>
     </div>
 
-    <div class="card warning" id="aiWarning">
-        <h3>AI Alert</h3>
-        <p id="warningText">Menganalisa perilaku...</p>
+    <div class="card">
+        <button onclick="analisaKesehatan()">Analisa Kesehatan</button>
+    </div>
+
+    <div class="card">
+        <h3>Hasil</h3>
+        <p id="hasilBMI">BMI: -</p>
+        <p id="hasilSkor">Skor Kesehatan: -</p>
+    </div>
+
+    <div class="card warning">
+        <h3>AI Saran Kesehatan</h3>
+        <p id="aiSaran">Belum ada data dianalisa...</p>
     </div>
 </div>
 
